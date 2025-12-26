@@ -271,7 +271,6 @@ Future<void> _showDefinition(
 
   showModalBottomSheet(
     context: context,
-    // backgroundColor: Colors.white,c
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
