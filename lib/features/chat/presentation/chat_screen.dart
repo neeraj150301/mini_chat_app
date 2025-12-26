@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mini_chat_app/features/chat/domain/message.dart';
@@ -161,44 +162,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                final showTime =
-                    index == messages.length - 1 ||
-                    (index < messages.length - 1 &&
-                        messages[index + 1].timestamp
-                                .difference(message.timestamp)
-                                .inMinutes
-                                .abs() >
-                            30);
-
-                return Column(
-                  children: [
-                    if (showTime)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            DateFormat.jm().format(message.timestamp),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    MessageBubble(
-                      message: message,
-                      otherUserName: widget.userName,
-                    ),
-                  ],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: MessageBubble(
+                    message: message,
+                    otherUserName: widget.userName,
+                    chatId: widget.chatId,
+                  ),
                 );
               },
             ),
@@ -226,14 +196,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         top: false,
         child: Row(
           children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.add_circle,
-                color: Theme.of(context).primaryColor,
-                size: 28,
-              ),
-            ),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -297,18 +259,108 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 }
 
-class MessageBubble extends StatelessWidget {
+Future<void> _showDefinition(
+  BuildContext context,
+  String word,
+  WidgetRef ref,
+) async {
+  final repo = ref.read(chatRepositoryProvider);
+  final definitionData = await repo.getWordDefinition(word);
+
+  if (!context.mounted) return;
+
+  showModalBottomSheet(
+    context: context,
+    // backgroundColor: Colors.white,c
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      if (definitionData == null) {
+        return SafeArea(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              "No definition found for '$word'.",
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        );
+      }
+
+      final meanings = definitionData['meanings'] as List;
+      final firstMeaning = meanings.isNotEmpty ? meanings[0] : null;
+      final definitions = firstMeaning?['definitions'] as List?;
+      final definitionText = definitions?.isNotEmpty == true
+          ? definitions![0]['definition']
+          : "No definition available.";
+      final partOfSpeech = firstMeaning?['partOfSpeech'] ?? "unknown";
+
+      return SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                word,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  partOfSpeech,
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                definitionText,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class MessageBubble extends ConsumerWidget {
   final Message message;
   final String otherUserName;
+  final String chatId;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.otherUserName,
+    required this.chatId,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isMe = message.isMe;
 
     final gradient = isMe
@@ -321,57 +373,138 @@ class MessageBubble extends StatelessWidget {
 
     final backgroundColor = isMe ? null : Colors.white;
     final textColor = isMe ? Colors.white : const Color(0xFF1E293B);
-    final alignment = isMe ? Alignment.centerRight : Alignment.centerLeft;
 
-    final borderRadius = BorderRadius.only(
-      topLeft: const Radius.circular(20),
-      topRight: const Radius.circular(20),
-      bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(4),
-      bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(20),
-    );
-
-    return Align(
-      alignment: alignment,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          gradient: gradient,
-          borderRadius: borderRadius,
-          boxShadow: [
-            BoxShadow(
-              color: isMe
-                  ? const Color(0xFF2563EB).withOpacity(0.25)
-                  : const Color(0xFF94A3B8).withOpacity(0.1),
-              offset: const Offset(0, 4),
-              blurRadius: 12,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.text,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 15,
-                height: 1.3,
-                fontWeight: FontWeight.w400,
+    Widget buildAvatar() {
+      if (isMe) {
+        return Container(
+          margin: const EdgeInsets.only(left: 8),
+          child: CircleAvatar(
+            radius: 16,
+            backgroundColor: Colors.blue.shade100,
+            child: Icon(Icons.person, size: 18, color: Colors.blue.shade700),
+          ),
+        );
+      } else {
+        return Container(
+          margin: const EdgeInsets.only(right: 8),
+          child: Hero(
+            tag: "avatar_${message.id}",
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors
+                  .primaries[chatId.hashCode % Colors.primaries.length]
+                  .shade100,
+              child: Text(
+                otherUserName.isNotEmpty ? otherUserName[0].toUpperCase() : "?",
+                style: TextStyle(
+                  color: Colors
+                      .primaries[chatId.hashCode % Colors.primaries.length]
+                      .shade700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ],
+          ),
+        );
+      }
+    }
+
+    final bubble = Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.65,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        gradient: gradient,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(20),
+          topRight: const Radius.circular(20),
+          bottomLeft: isMe
+              ? const Radius.circular(20)
+              : const Radius.circular(4),
+          bottomRight: isMe
+              ? const Radius.circular(4)
+              : const Radius.circular(20),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isMe
+                ? const Color(0xFF2563EB).withOpacity(0.25)
+                : const Color(0xFF94A3B8).withOpacity(0.1),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+          ),
+        ],
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: _parseMessage(message.text, textColor, context, ref),
         ),
       ),
+    );
+
+    final timestamp = Padding(
+      padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
+      child: Text(
+        DateFormat.jm().format(message.timestamp),
+        style: TextStyle(
+          color: Colors.grey[400],
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+
+    return Row(
+      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!isMe) buildAvatar(),
+        Column(
+          crossAxisAlignment: isMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [bubble, timestamp],
+        ),
+        if (isMe) buildAvatar(),
+      ],
     ).animate().fade().slideY(
-      begin: 0.3,
+      begin: 0.1,
       end: 0,
       duration: 300.ms,
       curve: Curves.easeOutQuad,
     );
+  }
+
+  List<InlineSpan> _parseMessage(
+    String text,
+    Color textColor,
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final words = text.split(" ");
+    return words.asMap().entries.map((entry) {
+      final word = entry.value;
+
+      final cleanWord = word.replaceAll(RegExp(r'[^\w\s]'), '');
+
+      return TextSpan(
+        text: "$word ",
+        style: TextStyle(
+          color: textColor,
+          fontSize: 15,
+          height: 1.3,
+          fontWeight: FontWeight.w400,
+        ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            if (cleanWord.isNotEmpty) {
+              _showDefinition(context, cleanWord, ref);
+            }
+          },
+      );
+    }).toList();
   }
 }

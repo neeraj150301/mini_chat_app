@@ -132,7 +132,7 @@ class _SessionListItem extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: unreadCount > 0
-                                      ? Theme.of(context).colorScheme.primary
+                                      ? Color(0xFF2563EB)
                                       : Colors.grey[400],
                                   fontWeight: unreadCount > 0
                                       ? FontWeight.w600
@@ -168,15 +168,13 @@ class _SessionListItem extends StatelessWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
+                                    color: Color(0xFF2563EB),
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary.withOpacity(0.3),
+                                        color: Color(
+                                          0xFF2563EB,
+                                        ).withOpacity(0.3),
                                         blurRadius: 6,
                                         offset: const Offset(0, 2),
                                       ),

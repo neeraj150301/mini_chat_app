@@ -20,7 +20,9 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      body: SafeArea(
+        child: IndexedStack(index: _currentIndex, children: _pages),
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -32,40 +34,37 @@ class _MainScaffoldState extends State<MainScaffold> {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            backgroundColor: Colors.white,
-            selectedItemColor: Theme.of(context).colorScheme.primary,
-            unselectedItemColor: Colors.grey[400],
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            type: BottomNavigationBarType.fixed,
-            selectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-            ),
-            unselectedLabelStyle: const TextStyle(fontSize: 12),
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            items: const [
-              .new(
-                icon: Icon(Icons.message_outlined),
-                activeIcon: Icon(Icons.message),
-                label: "Home",
-              ),
-              .new(icon: Icon(Icons.local_offer_outlined), label: "Offers"),
-              .new(
-                icon: Icon(Icons.settings_outlined),
-                activeIcon: Icon(Icons.settings),
-                label: "Settings",
-              ),
-            ],
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          backgroundColor: Colors.white,
+          selectedItemColor: Color(0xFF2563EB),
+          unselectedItemColor: Colors.grey[400],
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
           ),
+          unselectedLabelStyle: const TextStyle(fontSize: 12),
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: const [
+            .new(
+              icon: Icon(Icons.message_outlined),
+              activeIcon: Icon(Icons.message),
+              label: "Home",
+            ),
+            .new(icon: Icon(Icons.local_offer_outlined), label: "Offers"),
+            .new(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: "Settings",
+            ),
+          ],
         ),
       ),
     );

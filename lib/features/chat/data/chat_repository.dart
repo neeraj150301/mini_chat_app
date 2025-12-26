@@ -29,4 +29,18 @@ class ChatRepository {
       return "Sorry, I couldn't connect to the server.";
     }
   }
+
+  Future<Map<String, dynamic>?> getWordDefinition(String word) async {
+    try {
+      final response = await _dio.get(
+        'https://api.dictionaryapi.dev/api/v2/entries/en/$word',
+      );
+      if (response.statusCode == 200 && (response.data as List).isNotEmpty) {
+        return response.data[0];
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 }
