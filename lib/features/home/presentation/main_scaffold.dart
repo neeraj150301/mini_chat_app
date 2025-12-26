@@ -34,37 +34,44 @@ class _MainScaffoldState extends State<MainScaffold> {
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF2563EB),
-          unselectedItemColor: Colors.grey[400],
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: BottomNavigationBar(
+            elevation: 0,
+            currentIndex: _currentIndex,
+            backgroundColor: Colors.white,
+            selectedItemColor: Color(0xFF2563EB),
+            unselectedItemColor: Colors.grey[400],
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+            unselectedLabelStyle: const TextStyle(fontSize: 12),
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.message_outlined),
+                activeIcon: Icon(Icons.message),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.local_offer_outlined),
+                label: "Offers",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings_outlined),
+                activeIcon: Icon(Icons.settings),
+                label: "Settings",
+              ),
+            ],
           ),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: const [
-            .new(
-              icon: Icon(Icons.message_outlined),
-              activeIcon: Icon(Icons.message),
-              label: "Home",
-            ),
-            .new(icon: Icon(Icons.local_offer_outlined), label: "Offers"),
-            .new(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: "Settings",
-            ),
-          ],
         ),
       ),
     );

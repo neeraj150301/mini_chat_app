@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen>
               forceElevated: innerBoxIsScrolled,
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(12),
-                child: Divider(height: 2),
+                child: Divider(height: 1),
               ),
             ),
           ];

@@ -47,7 +47,7 @@ class UsersListTab extends ConsumerWidget {
             )
           : ListView.builder(
               key: const PageStorageKey('users_list'),
-              padding: const EdgeInsets.only(top: 8, bottom: 80),
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
               itemCount: users.length,
               itemBuilder: (context, index) {
                 final user = users[index];
