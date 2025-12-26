@@ -5,17 +5,15 @@ class AppTheme {
   static final lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF3B82F6), // Royal Blue
-      // background: const Color(0xFFF3F4F6), // Light Grey
+      seedColor: const Color.fromARGB(255, 90, 147, 239),
       surface: Colors.white,
       onSurface: Colors.black87,
       brightness: Brightness.light,
     ),
-    scaffoldBackgroundColor: const Color(0xFFF3F4F6),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 246, 247, 248),
     textTheme: GoogleFonts.interTextTheme(),
     appBarTheme: const AppBarTheme(
-      backgroundColor:
-          Colors.transparent, // For glass effect if needed, or just clean
+      backgroundColor: Colors.transparent,
       centerTitle: true,
       elevation: 0,
       scrolledUnderElevation: 0,

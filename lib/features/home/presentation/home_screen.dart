@@ -28,44 +28,41 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverAppBar(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                title: Column(
-                  children: [
-                    SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 50),
-                      // child: PreferredSize(
-                      //   preferredSize: const Size.fromHeight(58),
-                      child: SegmentedTabControl(
-                        controller: _tabController,
-                        tabs: const ["Users", "Chat History"],
-                      ),
-                      // ),
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverAppBar(
+              toolbarHeight: 80,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              title: Column(
+                children: [
+                  SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 50),
+                    child: SegmentedTabControl(
+                      controller: _tabController,
+                      tabs: const ["Users", "Chat History"],
                     ),
-                  ],
-                ),
-                centerTitle: true,
-                floating: true,
-                snap: true,
-                pinned: false,
-                forceElevated: innerBoxIsScrolled,
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(16),
-                  child: Divider(height: 8),
-                ),
+                    // ),
+                  ),
+                ],
               ),
-            ];
-          },
-          body: TabBarView(
-            controller: _tabController,
-            children: const [UsersListTab(), ChatHistoryTab()],
-          ),
+              centerTitle: true,
+              floating: true,
+              snap: true,
+              pinned: false,
+              forceElevated: innerBoxIsScrolled,
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(12),
+                child: Divider(height: 2),
+              ),
+            ),
+          ];
+        },
+        body: TabBarView(
+          controller: _tabController,
+          children: const [UsersListTab(), ChatHistoryTab()],
         ),
       ),
     );

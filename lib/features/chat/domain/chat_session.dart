@@ -6,14 +6,22 @@ class ChatSession extends Equatable {
   final User user;
   final String lastMessage;
   final DateTime lastMessageTime;
+  final int unreadCount;
 
   const ChatSession({
     required this.id,
     required this.user,
     required this.lastMessage,
     required this.lastMessageTime,
+    this.unreadCount = 0,
   });
 
   @override
-  List<Object?> get props => [id, user, lastMessage, lastMessageTime];
+  List<Object?> get props => [
+    id,
+    user,
+    lastMessage,
+    lastMessageTime,
+    unreadCount,
+  ];
 }

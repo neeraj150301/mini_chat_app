@@ -46,105 +46,172 @@ class _SessionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Consistent color
     final color =
         Colors.primaries[session.user.id.hashCode % Colors.primaries.length];
-    // Mock unread count based on index for demo
-    final int unreadCount = index == 0 ? 2 : (index == 2 ? 1 : 0);
+    final int unreadCount = session.unreadCount;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF94A3B8).withOpacity(0.1),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Hero(
-          tag: session.user.id,
-          child: CircleAvatar(
-            backgroundColor: color.shade100,
-            foregroundColor: color.shade700,
-            radius: 24,
-            child: Text(
-              session.user.initials,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        title: Text(
-          session.user.name,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(
-            session.lastMessage,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: unreadCount > 0 ? Colors.black87 : Colors.grey[600],
-              fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
-            ),
-          ),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _formatTime(session.lastMessageTime),
-              style: TextStyle(
-                fontSize: 12,
-                color: unreadCount > 0
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[500],
-                fontWeight: unreadCount > 0
-                    ? FontWeight.w600
-                    : FontWeight.normal,
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () {
+                context.go(
+                  '/chat/${session.user.id}',
+                  extra: {'userName': session.user.name},
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                child: Row(
+                  children: [
+                    Hero(
+                      tag: session.user.id,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [color.shade400, color.shade100],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 26,
+                          child: CircleAvatar(
+                            backgroundColor: color.shade50,
+                            foregroundColor: color.shade700,
+                            radius: 23,
+                            child: Text(
+                              session.user.initials,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                session.user.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                              Text(
+                                _formatTime(session.lastMessageTime),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: unreadCount > 0
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.grey[400],
+                                  fontWeight: unreadCount > 0
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  session.lastMessage,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: unreadCount > 0
+                                        ? Colors.black87
+                                        : Colors.grey[500],
+                                    fontWeight: unreadCount > 0
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              if (unreadCount > 0)
+                                Container(
+                                  margin: const EdgeInsets.only(left: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary.withOpacity(0.3),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    unreadCount > 9
+                                        ? "9+"
+                                        : unreadCount.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ).animate().scale(curve: Curves.elasticOut),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            if (unreadCount > 0) ...[
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  unreadCount.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ).animate().scale(curve: Curves.elasticOut),
-            ],
-          ],
-        ),
-        onTap: () {
-          context.go(
-            '/chat/${session.user.id}',
-            extra: {'userName': session.user.name},
-          );
-        },
-      ),
-    ).animate(delay: (50 * index).ms).fadeIn().slideX(begin: 0.1);
+          ),
+        )
+        .animate(delay: (50 * index).ms)
+        .fadeIn()
+        .slideY(begin: 0.1, curve: Curves.easeOut);
   }
 
   String _formatTime(DateTime time) {
     final now = DateTime.now();
     if (now.difference(time).inDays == 0) {
-      // Check if it's minutes ago
       if (now.difference(time).inMinutes < 60) {
         return "${now.difference(time).inMinutes} min ago";
       }

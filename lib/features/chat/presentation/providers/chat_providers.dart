@@ -6,16 +6,12 @@ import 'package:mini_chat_app/features/chat/domain/message.dart';
 import 'package:mini_chat_app/features/chat/domain/user.dart';
 import 'package:uuid/uuid.dart';
 
-// REPOSITORY PROVIDER
 final dioProvider = Provider((ref) => Dio());
 
 final chatRepositoryProvider = Provider((ref) {
   return ChatRepository(ref.watch(dioProvider));
 });
 
-// STATE PROVIDERS
-
-// 1. User List Provider
 class UserListNotifier extends StateNotifier<List<User>> {
   UserListNotifier() : super([]);
 
@@ -40,7 +36,6 @@ final userListProvider = StateNotifierProvider<UserListNotifier, List<User>>((
   return UserListNotifier();
 });
 
-// 2. Chat Messages Provider Implementation (Family)
 class ChatMessagesNotifier extends StateNotifier<List<Message>> {
   final ChatRepository _repository;
   final String _chatId;
@@ -62,7 +57,6 @@ class ChatMessagesNotifier extends StateNotifier<List<Message>> {
     state = [newMessage, ...state];
     _updateHistory(newMessage);
 
-    // Simulate Reply
     await Future.delayed(const Duration(seconds: 1));
     _receiveReply();
   }
@@ -95,7 +89,6 @@ final chatMessagesProvider =
       return ChatMessagesNotifier(repository, chatId, ref);
     });
 
-// 3. Chat History Provider
 class ChatHistoryNotifier extends StateNotifier<List<ChatSession>> {
   final Ref _ref;
   ChatHistoryNotifier(this._ref) : super([]);
@@ -109,15 +102,46 @@ class ChatHistoryNotifier extends StateNotifier<List<ChatSession>> {
       return;
     }
 
+    int currentUnread = 0;
+    try {
+      final existingSession = state.firstWhere((s) => s.id == userId);
+      currentUnread = existingSession.unreadCount;
+    } catch (_) {}
+
+    int newUnreadCount = currentUnread;
+    if (!lastMessage.isMe) {
+      newUnreadCount++;
+    } else {
+      newUnreadCount = 0;
+    }
+
     final newSession = ChatSession(
       id: userId,
       user: user,
       lastMessage: lastMessage.text,
       lastMessageTime: lastMessage.timestamp,
+      unreadCount: newUnreadCount,
     );
 
     final otherSessions = state.where((s) => s.id != userId).toList();
     state = [newSession, ...otherSessions];
+  }
+
+  void markSessionAsRead(String userId) {
+    if (!state.any((s) => s.id == userId)) return;
+
+    state = state.map((session) {
+      if (session.id == userId) {
+        return ChatSession(
+          id: session.id,
+          user: session.user,
+          lastMessage: session.lastMessage,
+          lastMessageTime: session.lastMessageTime,
+          unreadCount: 0,
+        );
+      }
+      return session;
+    }).toList();
   }
 }
 

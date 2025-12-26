@@ -1,19 +1,27 @@
+import 'dart:math';
 import 'package:dio/dio.dart';
 
 class ChatRepository {
   final Dio _dio;
+  final _random = Random();
 
   ChatRepository(this._dio);
 
   Future<String> fetchRandomReply() async {
     try {
+      final skip = _random.nextInt(100);
+
       final response = await _dio.get(
-        'https://dummyjson.com/comments?limit=10',
+        'https://dummyjson.com/comments',
+        queryParameters: {'limit': 1, 'skip': skip, 'select': 'body,user'},
       );
+
       if (response.statusCode == 200) {
         final data = response.data;
         if (data['comments'] != null && (data['comments'] as List).isNotEmpty) {
-          return data['comments'][0]['body'];
+          final comment = data['comments'][0];
+          final body = comment['body'];
+          return body.toString();
         }
       }
       return "Hello! I am a bot.";
