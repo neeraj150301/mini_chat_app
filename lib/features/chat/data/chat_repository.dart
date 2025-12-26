@@ -8,7 +8,7 @@ class ChatRepository {
   Future<String> fetchRandomReply() async {
     try {
       final response = await _dio.get(
-        'https://dummyjson.com/comments?limit=1&skip=${DateTime.now().millisecond}',
+        'https://dummyjson.com/comments?limit=10',
       );
       if (response.statusCode == 200) {
         final data = response.data;
